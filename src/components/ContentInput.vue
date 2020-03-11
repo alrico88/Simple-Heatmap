@@ -10,7 +10,7 @@
       form.form
         .form-group
           label Paste the content
-          textarea.form-control(rows="20", v-model="textarea")
+          textarea.form-control(rows="15", v-model="textarea")
         .form-group
           label Latitude column
           select.form-control(v-model="latitudeCol")
@@ -19,6 +19,11 @@
         .form-group
           label Longitude column
           select.form-control(v-model="longitudeCol")
+            option(value="") -- No selection --
+            option(v-for="col of getColumns", :value="col") {{ col }}
+        .form-group
+          label Multiplier column
+          select.form-control(v-model="multiplierCol")
             option(value="") -- No selection --
             option(v-for="col of getColumns", :value="col") {{ col }}
         .form-group
@@ -34,7 +39,14 @@ import {mapState, mapGetters} from 'vuex';
 
 export default {
   computed: {
-    ...mapState(['latitude', 'longitude', 'text', 'radius', 'blur']),
+    ...mapState([
+      'latitude',
+      'longitude',
+      'text',
+      'radius',
+      'blur',
+      'multiplier',
+    ]),
     ...mapGetters(['getColumns']),
     latitudeCol: {
       get() {
@@ -54,6 +66,17 @@ export default {
       set(value) {
         this.$store.commit('changeCol', {
           column: 'longitude',
+          value,
+        });
+      },
+    },
+    multiplierCol: {
+      get() {
+        return this.multiplier;
+      },
+      set(value) {
+        this.$store.commit('changeCol', {
+          column: 'multiplier',
           value,
         });
       },

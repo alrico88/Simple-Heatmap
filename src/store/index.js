@@ -1,5 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import {createLinearScale} from 'scale-helper-functions';
+import {calcDomain} from 'math-helper-functions';
 
 function processCsv(csvString) {
   const withoutStrings = csvString.trim().replace(/"/g, '');
@@ -26,6 +28,7 @@ export default new Vuex.Store({
     parsed: [],
     radius: 7,
     blur: 4,
+    multiplier: '',
   },
   getters: {
     getLocations(state) {
@@ -34,7 +37,14 @@ export default new Vuex.Store({
       if (latCol === '' || lonCol === '') {
         return [];
       } else {
-        return state.parsed.map((d) => [Number(d[latCol]), Number(d[lonCol])]);
+        const mult = state.multiplier;
+        if (mult !== '') {
+          const domain = calcDomain(state.parsed, mult);
+          const scale = createLinearScale(domain, [0, 1]);
+          return state.parsed.map((d) => [Number(d[latCol]), Number(d[lonCol]), scale(d[mult])]);
+        } else {
+          return state.parsed.map((d) => [Number(d[latCol]), Number(d[lonCol])]);
+        }
       }
     },
     getColumns(state) {
