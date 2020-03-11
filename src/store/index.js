@@ -4,18 +4,12 @@ import * as formatcsv from '@fast-csv/parse';
 
 function processCsv(csvString) {
   return new Promise((resolve, reject) => {
-    const response = {
-      headers: [],
-      data: [],
-    };
+    const data = [];
     formatcsv
       .parseString(csvString, {headers: true})
       .on('error', (error) => reject(error))
-      .on('headers', (headers) => {
-        response.headers = headers;
-      })
-      .on('data', (row) => response.data.push(row))
-      .on('end', () => resolve(response));
+      .on('data', (row) => data.push(row))
+      .on('end', () => resolve(data));
     });
 }
 
@@ -26,7 +20,6 @@ export default new Vuex.Store({
     text: '',
     latitude: '',
     longitude: '',
-    columns: [],
     parsed: [],
     radius: 7,
     blur: 4,
@@ -40,6 +33,9 @@ export default new Vuex.Store({
       } else {
         return state.parsed.map((d) => [d[latCol], d[lonCol]]);
       }
+    },
+    getColumns(state) {
+      return state.parsed.length > 0 ? Object.keys(state.parsed[0]) : [];
     },
   },
   mutations: {
@@ -66,8 +62,7 @@ export default new Vuex.Store({
     async updateContent(context, csvString) {
       context.commit('changeText', csvString);
       const parsedData = await processCsv(csvString);
-      context.commit('changeColumns', parsedData.headers);
-      context.commit('changeParsed', parsedData.data);
+      context.commit('changeParsed', parsedData);
     },
   },
 });

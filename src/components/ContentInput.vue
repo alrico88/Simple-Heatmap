@@ -15,12 +15,12 @@
           label Latitude column
           select.form-control(v-model="latitudeCol")
             option(value="") -- No selection --
-            option(v-for="col of columns", :value="col") {{ col }}
+            option(v-for="col of getColumns", :value="col") {{ col }}
         .form-group
           label Longitude column
           select.form-control(v-model="longitudeCol")
             option(value="") -- No selection --
-            option(v-for="col of columns", :value="col") {{ col }}
+            option(v-for="col of getColumns", :value="col") {{ col }}
         .form-group
           label Radius {{ radiusInput }}
           input.form-control-range(type="range", min="0", max="20", step="1", v-model="radiusInput")
@@ -34,7 +34,7 @@ import {mapState, mapGetters} from 'vuex';
 
 export default {
   computed: {
-    ...mapState(['latitude', 'longitude', 'text', 'columns', 'radius', 'blur']),
+    ...mapState(['latitude', 'longitude', 'text', 'radius', 'blur']),
     ...mapGetters(['getColumns']),
     latitudeCol: {
       get() {
