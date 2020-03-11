@@ -1,16 +1,19 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import * as formatcsv from '@fast-csv/parse';
 
 function processCsv(csvString) {
-  return new Promise((resolve, reject) => {
-    const data = [];
-    formatcsv
-      .parseString(csvString, {headers: true})
-      .on('error', (error) => reject(error))
-      .on('data', (row) => data.push(row))
-      .on('end', () => resolve(data));
+  const withoutStrings = csvString.trim().replace(/"/g, '');
+  const data = [];
+  const [headerLine, ...rows] = withoutStrings.split('\n');
+  const header = headerLine.split(',');
+  for (let i = 0, len = rows.length; i < len; i++) {
+    const obj = {};
+    rows[i].split(',').forEach((column, index) => {
+      obj[header[index]] = column;
     });
+    data.push(obj);
+  }
+  return data;
 }
 
 Vue.use(Vuex);
@@ -31,7 +34,7 @@ export default new Vuex.Store({
       if (latCol === '' || lonCol === '') {
         return [];
       } else {
-        return state.parsed.map((d) => [d[latCol], d[lonCol]]);
+        return state.parsed.map((d) => [Number(d[latCol]), Number(d[lonCol])]);
       }
     },
     getColumns(state) {
@@ -59,9 +62,9 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    async updateContent(context, csvString) {
+    updateContent(context, csvString) {
       context.commit('changeText', csvString);
-      const parsedData = await processCsv(csvString);
+      const parsedData = processCsv(csvString);
       context.commit('changeParsed', parsedData);
     },
   },

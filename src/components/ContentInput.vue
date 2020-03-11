@@ -3,7 +3,7 @@
     .col.pt-3
       h2 Simple Heatmap
         span.smalltext.ml-2 By Alberto Rico
-          a.ml-2(href="https://github.com/alrico88/Simple-WKT", target="_blank")
+          a.ml-2(href="https://github.com/alrico88/Simple-Heatmap", target="_blank")
             i.fa.fa-github-square
     .w-100
     .col

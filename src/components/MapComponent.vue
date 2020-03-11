@@ -24,13 +24,15 @@ export default {
   },
   watch: {
     getLocations(locations) {
-      const meanLat = calcMean(locations.map((d) => d[0]));
-      const meanLon = calcMean(locations.map((d) => d[1]));
       this.drawHeatmap();
-      this.moveMap({
-        latitude: meanLat,
-        longitude: meanLon,
-      });
+      if (locations.length > 0) {
+        const meanLat = calcMean(locations.map((d) => d[0]));
+        const meanLon = calcMean(locations.map((d) => d[1]));
+        this.moveMap({
+          latitude: meanLat,
+          longitude: meanLon,
+        });
+      }
     },
     radius() {
       this.drawHeatmap();
@@ -47,12 +49,17 @@ export default {
   },
   methods: {
     drawHeatmap() {
-      const heatLayer = this.map.createHeatLayer(this.getLocations, {
-        radius: this.radius,
-        blur: this.blur,
-        minOpacity: 0.2,
-      });
-      this.map.addLayer(heatLayer, 'heatLayer');
+      const locations = this.getLocations;
+      if (locations.length > 0) {
+        const heatLayer = this.map.createHeatLayer(locations, {
+          radius: this.radius,
+          blur: this.blur,
+          minOpacity: 0.2,
+        });
+        this.map.addLayer(heatLayer, 'heatLayer');
+      } else {
+        this.map.removeLayerById('heatLayer');
+      }
     },
     moveMap({latitude, longitude}) {
       this.map.flyTo([latitude, longitude]);
