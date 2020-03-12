@@ -2,7 +2,7 @@
   <div id="app">
     <div class="container-fluid">
       <div class="row">
-        <div class="col-8 vh-100">
+        <div class="col-8 vh-100 p-0">
           <map-component />
         </div>
         <div class="col">

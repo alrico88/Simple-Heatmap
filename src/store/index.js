@@ -3,11 +3,11 @@ import Vuex from 'vuex';
 import {createLinearScale} from 'scale-helper-functions';
 import {calcDomain} from 'math-helper-functions';
 
-function processCsv(csvString) {
+function processCsv(csvString, delimiter) {
   const withoutStrings = csvString.trim().replace(/"/g, '');
   const data = [];
   const [headerLine, ...rows] = withoutStrings.split('\n');
-  const header = headerLine.split(',');
+  const header = headerLine.split(delimiter);
   for (let i = 0, len = rows.length; i < len; i++) {
     const obj = {};
     rows[i].split(',').forEach((column, index) => {
@@ -29,6 +29,9 @@ export default new Vuex.Store({
     radius: 7,
     blur: 4,
     multiplier: '',
+    delimiter: ',',
+    tileUrl:
+    'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
   },
   getters: {
     getLocations(state) {
@@ -70,11 +73,20 @@ export default new Vuex.Store({
     changeBlur(state, value) {
       state.blur = Number(value);
     },
+    changeDelimiter(state, value) {
+      state.delimiter = value;
+    },
+    changeBaseTile(state, payload) {
+      state.tileUrl = payload;
+    },
   },
   actions: {
     updateContent(context, csvString) {
       context.commit('changeText', csvString);
-      const parsedData = processCsv(csvString);
+      context.dispatch('parseData');
+    },
+    parseData(context) {
+      const parsedData = processCsv(context.state.text, context.state.delimiter);
       context.commit('changeParsed', parsedData);
     },
   },

@@ -9,7 +9,7 @@
 import uniqueId from 'lodash/uniqueId';
 import {LeafletMap} from '../modules/LeafletMap';
 import {mapGetters, mapState} from 'vuex';
-import {calcMean} from 'math-helper-functions';
+import {getBBox} from '../modules/bbox';
 
 export default {
   name: 'MapComponent',
@@ -19,18 +19,23 @@ export default {
     };
   },
   computed: {
-    ...mapState(['radius', 'blur']),
+    ...mapState(['radius', 'blur', 'tileUrl']),
     ...mapGetters(['getLocations']),
   },
   watch: {
     getLocations(locations) {
       this.drawHeatmap();
       if (locations.length > 0) {
-        const meanLat = calcMean(locations.map((d) => d[0]));
-        const meanLon = calcMean(locations.map((d) => d[1]));
-        this.moveMap({
-          latitude: meanLat,
-          longitude: meanLon,
+        const [minLon, minLat, maxLon, maxLat] = getBBox(
+          locations,
+          (d) => d[0],
+          (d) => d[1]
+        );
+        this.map.fitBounds({
+          minLon,
+          minLat,
+          maxLon,
+          maxLat,
         });
       }
     },
@@ -39,6 +44,9 @@ export default {
     },
     blur() {
       this.drawHeatmap();
+    },
+    tileUrl(newTile) {
+      this.changeTile(newTile);
     },
   },
   mounted() {
@@ -63,6 +71,9 @@ export default {
     },
     moveMap({latitude, longitude}) {
       this.map.flyTo([latitude, longitude]);
+    },
+    changeTile(newTile) {
+      this.map.changeBaseTile(newTile);
     },
   },
 };
